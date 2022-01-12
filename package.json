@@ -1,0 +1,27 @@
+{
+  "name": "lawukrserver",
+  "version": "1.0.0",
+  "description": "ovlawyer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pasha147/lawukrServer.git"
+  },
+  "author": "Pasha147",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pasha147/lawukrServer/issues"
+  },
+  "homepage": "https://github.com/Pasha147/lawukrServer#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "express": "^4.17.2",
+    "mongoose": "^6.1.6"
+  }
+}
