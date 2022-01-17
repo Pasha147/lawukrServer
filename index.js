@@ -29,14 +29,23 @@ async function saveToDb(message) {
 
 //POST
 app.post("/api/data/:id", (req, res) => {
-  console.log("req.params>>", req.params);
-  console.log("req.body>>", req.body);
-  saveToDb(JSON.stringify(req.body));
+  //   console.log("req.params>>", req.params);
+  //   console.log("req.body>>", req.body);
 
   //   let reqBodyStr = JSON.stringify(req.body);
   //   console.log(reqBodyStr);
   //   console.log(JSON.parse(reqBodyStr));
 
+  const date = new Date();
+  const dateStr =
+    `${date.getFullYear()}.${date.getMonth() + 1}.` +
+    `${date.getDate()} ${date.getHours()}:` +
+    `${date.getMinutes()}:${date.getSeconds()}`;
+  let message = { ...req.body };
+  message.date = dateStr;
+
+  console.log(message);
+  saveToDb(JSON.stringify(message));
   res.status(200).json(`The message from ${req.body.name} has been reseived`);
 });
 
