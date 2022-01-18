@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { Schema, model } = require("mongoose");
+const fs = require("fs");
+const nodemailer = require("nodemailer");
 
 const PORT = process.env.PORT || 3000;
 
@@ -27,26 +29,83 @@ async function saveToDb(message) {
 }
 //=================================
 
+//Send email and refresh text=====================
+
+async function sendF(dateStr) {
+  let transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "pasha147223s@gmail.com",
+      pass: "@P1471472v",
+    },
+  });
+
+  try {
+    await transporter.sendMail({
+      from: "pasha147223s",
+      //   to: "pasha147223@gmail.com",
+      to: "naukaoksana@gmail.com",
+      //   to: "oksanazay@ukr.net",
+      subject: "Node js",
+      text: "",
+      attachments: [{ filename: "text.txt", path: "./text.txt" }],
+    });
+    console.log("The email has been sent");
+  } catch (error) {
+    console.log("Can't send the email>>", error);
+  }
+
+  fs.writeFile("./text.txt", dateStr + "\n\n", (err) => {
+    if (err) {
+      throw err;
+    }
+    console.log("File has been refreshed");
+  });
+}
+//======================================
+
 //POST
 app.post("/api/data/:id", (req, res) => {
+  const date = new Date();
+  const dateStr =
+    `${date.getFullYear()}.${date.getMonth() + 1}.` +
+    `${date.getDate()} ${date.getHours()}:` +
+    `${date.getMinutes()}:${date.getSeconds()}`;
   //   console.log("req.params>>", req.params);
   //   console.log("req.body>>", req.body);
 
   //   let reqBodyStr = JSON.stringify(req.body);
   //   console.log(reqBodyStr);
   //   console.log(JSON.parse(reqBodyStr));
-
-  const date = new Date();
-  const dateStr =
-    `${date.getFullYear()}.${date.getMonth() + 1}.` +
-    `${date.getDate()} ${date.getHours()}:` +
-    `${date.getMinutes()}:${date.getSeconds()}`;
-  let message = { ...req.body };
-  message.date = dateStr;
-
-  console.log(message);
-  saveToDb(JSON.stringify(message));
-  res.status(200).json(`The message from ${req.body.name} has been reseived`);
+  let resp = "";
+  if (req.body.name === "OksanaLawyer" && req.body.text === "SendMe") {
+    sendF(dateStr);
+  } else {
+    let message = { ...req.body };
+    message.date = dateStr;
+    let messageStr =
+      message.date +
+      ", " +
+      message.name +
+      ", " +
+      message.bearthday +
+      ", " +
+      message.email +
+      ", " +
+      message.phone +
+      ",\n\t" +
+      message.text +
+      "\n";
+    console.log(messageStr);
+    fs.appendFile("./text.txt", messageStr, (err) => {
+      if (err) {
+        throw err;
+      }
+    });
+    saveToDb(JSON.stringify(message));
+    resp = `The message from ${req.body.name} has been reseived`;
+  }
+  res.status(200).json(resp);
 });
 
 async function start() {
