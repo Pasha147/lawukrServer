@@ -17,6 +17,8 @@ app.use((req, res, next) => {
   next();
 });
 
+let resp = "";
+
 //=======Mongoose=====================
 const schema = new Schema({
   message: { type: String, required: true },
@@ -31,7 +33,7 @@ async function saveToDb(message) {
 
 //Send email and refresh text=====================
 
-async function sendF(dateStr) {
+async function sendF(dateStr, res) {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -50,22 +52,26 @@ async function sendF(dateStr) {
       text: "",
       attachments: [{ filename: "text.txt", path: "./text.txt" }],
     });
-    console.log("The email has been sent");
+    resp = "The email has been sent\n";
+    console.log("1.", resp);
   } catch (error) {
     console.log("Can't send the email>>", error);
   }
-
   fs.writeFile("./text.txt", dateStr + "\n\n", (err) => {
     if (err) {
       throw err;
     }
-    console.log("File has been refreshed");
+    resp = resp + " The data file has been refreshed";
+    console.log("2. ", resp);
+    res.status(200).json(resp);
+    resp = "";
   });
 }
 //======================================
 
 //POST
 app.post("/api/data/:id", (req, res) => {
+  resp = "";
   const date = new Date();
   const dateStr =
     `${date.getFullYear()}.${date.getMonth() + 1}.` +
@@ -77,9 +83,9 @@ app.post("/api/data/:id", (req, res) => {
   //   let reqBodyStr = JSON.stringify(req.body);
   //   console.log(reqBodyStr);
   //   console.log(JSON.parse(reqBodyStr));
-  let resp = "";
+
   if (req.body.name === "OksanaLawyer" && req.body.text === "SendMe") {
-    sendF(dateStr);
+    sendF(dateStr, res);
   } else {
     let message = { ...req.body };
     message.date = dateStr;
@@ -104,8 +110,10 @@ app.post("/api/data/:id", (req, res) => {
     });
     saveToDb(JSON.stringify(message));
     resp = `The message from ${req.body.name} has been reseived`;
+    res.status(200).json(resp);
+    console.log("resp>>>", resp, "<<<");
+    resp = "";
   }
-  res.status(200).json(resp);
 });
 
 async function start() {
